@@ -44,7 +44,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     public Optional<User> findByUserName(String s) {
          List<User> result = template.query("SELECT * FROM user WHERE username = ?", new UserMapper(), s);
-         return Optional.ofNullable(result.get(0));
+         return result.isEmpty() ? Optional.empty() : Optional.ofNullable(result.get(0));
     }
 
     private int insert(User user) {
@@ -54,7 +54,9 @@ public class JdbcUserRepository implements UserRepository {
         Map<String, Object> map = new HashMap<>();
         map.put("username", user.getUsername());
         map.put("password", user.getPassword());
-        map.put("isadmin", user.getIs_admin());
+        map.put("is_admin", user.getIs_admin());
+        map.put("is_banned", 0);
+        map.put("score", 0);
         return insert.executeAndReturnKey(map).intValue();
     }
 

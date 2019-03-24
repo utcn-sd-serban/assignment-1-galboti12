@@ -13,7 +13,7 @@ public class QuestionMapper implements RowMapper<Question> {
     public Question mapRow(ResultSet rs, int rowNum) throws SQLException {
         Question question = new Question();
         question.setId(rs.getInt("id"));
-        question.getAuthor().setId(rs.getInt("author"));
+        if (question.getAuthor() != null) question.getAuthor().setId(rs.getInt("author"));
         question.setTitle(rs.getString("title"));
         question.setText(rs.getString("text"));
         question.setTime(rs.getString("time"));

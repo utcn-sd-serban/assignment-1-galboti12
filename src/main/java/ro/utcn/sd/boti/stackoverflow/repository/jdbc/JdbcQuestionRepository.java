@@ -2,10 +2,15 @@ package ro.utcn.sd.boti.stackoverflow.repository.jdbc;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import ro.utcn.sd.boti.stackoverflow.entity.Question;
 import ro.utcn.sd.boti.stackoverflow.repository.QuestionRepository;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +31,7 @@ public class JdbcQuestionRepository implements QuestionRepository {
     }
 
     @Override
-    public void remove(Question entity) { template.update("DELETE FROM student WHERE id = ?", entity.getId()); }
+    public void remove(Question entity) { template.update("DELETE FROM question WHERE id = ?", entity.getId()); }
 
     @Override
     public Optional<Question> findById(int id) {
@@ -41,10 +46,12 @@ public class JdbcQuestionRepository implements QuestionRepository {
 
     @Override
     public List<Question> findByText(String s) {
-        String sql = "SELECT * FROM question WHERE title LIKE :name";
-        Map<String,Object> params = new HashMap<String,Object>();
-        params.put("name", "%" +s+"%");
-        return template.query(sql, new QuestionMapper(), params);
+        String sql = "SELECT * FROM question WHERE title LIKE ?";
+        return template.query(sql, new PreparedStatementSetter() {
+            public void setValues(PreparedStatement preparedStatement) throws SQLException {
+                preparedStatement.setString(1, "%" + s + "%");
+            }
+        },new QuestionMapper());
     }
 
     private int insert(Question question) {
@@ -53,7 +60,7 @@ public class JdbcQuestionRepository implements QuestionRepository {
         insert.setTableName("question");
         insert.usingGeneratedKeyColumns("id");
         Map<String, Object> map = new HashMap<>();
-        map.put("author", question.getAuthor().getId());
+        map.put("author", null == question.getAuthor() ? 0 : question.getAuthor().getId());
         map.put("title", question.getTitle());
         map.put("text", question.getText());
         map.put("time", question.getTime());

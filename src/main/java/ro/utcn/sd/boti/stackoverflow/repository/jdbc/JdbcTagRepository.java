@@ -45,7 +45,7 @@ public class JdbcTagRepository implements TagRepository {
         insert.setTableName("tag");
         insert.usingGeneratedKeyColumns("id");
         Map<String, Object> map = new HashMap<>();
-        map.put("username", tag.getName());
+        map.put("name", tag.getName());
         return insert.executeAndReturnKey(map).intValue();
     }
 

@@ -62,22 +62,22 @@ public class ConsoleController implements CommandLineRunner {
 
     private boolean handleCommand(String command) {
         switch (command) {
-            case "listQuestions":
+            case "listquestions":
                 listQuestions();
                 return false;
-            case "listTags":
+            case "listtags":
                 listTags();
                 return false;
-            case "addQuestion":
+            case "addquestion":
                 addQuestion();
                 return false;
-            case "removeQuestion":
+            case "removequestion":
                 removeQuestion();
                 return false;
-            case "searchByTag":
+            case "searchbytag":
                 searchByTag();
                 return  false;
-            case "searchByText":
+            case "searchbytext":
                 searchByText();
                 return  false;
             case "exit":

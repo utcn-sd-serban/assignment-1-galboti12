@@ -7,6 +7,7 @@ import ro.utcn.sd.boti.stackoverflow.repository.QuestionRepository;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,6 +43,8 @@ public class HibernateQuestionRepository implements QuestionRepository {
 
     @Override
     public List<Question> findByText(String s) {
-        return null;
+        List<Question> result =  entityManager.createQuery("select q from Question q where q.title like ?1").
+                setParameter(1, "%"+s+"%").getResultList();
+        return result;
     }
 }

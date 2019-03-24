@@ -42,9 +42,8 @@ public class HibernateUserRepository implements UserRepository {
 
     @Override
     public Optional<User> findByUserName(String username) {
-        List<?> result =  entityManager.createQuery("select user from User user where user.username like ?1").
+        List<User> result =  entityManager.createQuery("select user from User user where user.username like ?1").
                 setParameter(1, username).getResultList();
-        if (result.isEmpty()) return Optional.empty();
-        return Optional.ofNullable((User)result.get(0));
+        return result.isEmpty() ? Optional.empty() : Optional.ofNullable(result.get(0));
     }
 }

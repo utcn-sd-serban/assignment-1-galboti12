@@ -16,7 +16,6 @@ import ro.utcn.sd.boti.stackoverflow.repository.UserRepository;
 
 @Component
 @RequiredArgsConstructor
-// The Order ensures that this command line runner is ran first (before the ConsoleController)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class StackoverflowSeed implements CommandLineRunner {
     private final RepositoryFactory factory;
@@ -51,16 +50,16 @@ public class StackoverflowSeed implements CommandLineRunner {
         t2.getQuestions().add(q3);
         t1.getQuestions().add(q3);
 
-//        if (questionRrepository.findAll().isEmpty()) {
-//            questionRrepository.save(q1);
-//            questionRrepository.save(q2);
-//            questionRrepository.save(q3);
-//        }
-//
-//        if (tagRepository.findAll().isEmpty()){
-//            tagRepository.save(t1);
-//            tagRepository.save(t2);
-//            tagRepository.save(t3);
-//        }
+        if (questionRrepository.findAll().isEmpty()) {
+            questionRrepository.save(q1);
+            questionRrepository.save(q2);
+            questionRrepository.save(q3);
+        }
+
+        if (tagRepository.findAll().isEmpty()){
+            tagRepository.save(t1);
+            tagRepository.save(t2);
+            tagRepository.save(t3);
+        }
     }
 }
