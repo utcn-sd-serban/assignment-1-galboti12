@@ -1,12 +1,13 @@
 package ro.utcn.sd.boti.stackoverflow.Controller;
 
-import javassist.bytecode.ExceptionsAttribute;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import ro.utcn.sd.boti.stackoverflow.entity.Question;
+import ro.utcn.sd.boti.stackoverflow.entity.Tag;
+import ro.utcn.sd.boti.stackoverflow.entity.User;
 import ro.utcn.sd.boti.stackoverflow.exception.QuestionNotFoundException;
-import ro.utcn.sd.boti.stackoverflow.service.QuestionManagementService;
+import ro.utcn.sd.boti.stackoverflow.service.StackoverflowService;
 
 import java.util.Scanner;
 import java.util.regex.Pattern;
@@ -15,12 +16,34 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class ConsoleController implements CommandLineRunner {
     private final Scanner scanner = new Scanner(System.in);
-    private final QuestionManagementService questionManagementService;
+    private final StackoverflowService stackoverflowService;
+    private User user;
 
     @Override
     public void run(String... args) {
         print("Welcome to stackoverflow.");
         scanner.useDelimiter(Pattern.compile("[\\r\\n;]+"));
+
+        boolean loggedIn = false;
+        while (!loggedIn) {
+            print("Enter username: ");
+            String username = scanner.next().trim();
+            print("Enter password: ");
+            String password = scanner.next().trim();
+            user = stackoverflowService.findByUserName(username).orElse(null);
+            if (user == null){
+                print("Username not found!");
+                continue;
+            }
+            if (password.equals(user.getPassword())){
+                print("You are logged in!");
+                loggedIn = true;
+            }
+            else{
+                print("Wrong password!");
+            }
+        }
+
         boolean done = false;
         while (!done) {
             print("Enter a command: ");
@@ -33,23 +56,30 @@ public class ConsoleController implements CommandLineRunner {
         }
     }
 
+    private void print(String value) {
+        System.out.println(value);
+    }
+
     private boolean handleCommand(String command) {
         switch (command) {
-            case "list":
-                handleList();
+            case "listQuestions":
+                listQuestions();
                 return false;
-            case "add":
-                handleAdd();
+            case "listTags":
+                listTags();
                 return false;
-            case "update-text":
-                handleUpdateText();
+            case "addQuestion":
+                addQuestion();
                 return false;
-            case "upadte-title":
-                handleUpdateTitle();
+            case "removeQuestion":
+                removeQuestion();
                 return false;
-            case "remove":
-                handleRemove();
-                return false;
+            case "searchByTag":
+                searchByTag();
+                return  false;
+            case "searchByText":
+                searchByText();
+                return  false;
             case "exit":
                 return true;
             default:
@@ -58,42 +88,40 @@ public class ConsoleController implements CommandLineRunner {
         }
     }
 
-    private void handleList() {
-        questionManagementService.listQuestions().forEach(s -> print(s.toString()));
+    private void listQuestions() {
+        for (Question q : stackoverflowService.listQuestions()) { print(q.toString()); }
     }
+    private void listTags() {for (Tag t : stackoverflowService.listTags()) { print(t.toString()); } }
 
-    private void handleAdd() {
-        print("Title:");
+    private void addQuestion() {
+        print("Question title:");
         String title = scanner.next().trim();
-        print("Text:");
+        print("Question text:");
         String text = scanner.next().trim() ;
-        Question question = questionManagementService.addQuestion(title, text);
-        print("Created quesion: " + question + ".");
+        print("Add tags:");
+        String input = scanner.next().trim() ;
+        String[] arrayOfTags = input.split("\\s+");
+        Question question = stackoverflowService.addQuestion(user, title, text, arrayOfTags);
+        print("Created question: " + question + ".");
     }
 
-    private void handleUpdateTitle() {
+    private void removeQuestion() {
         print("Question ID:");
         int id = scanner.nextInt();
-        print("Title:");
-        String title = scanner.next().trim();
-        questionManagementService.updateTitle(id, title);
+        stackoverflowService.removeQuestion(id);
     }
 
-    private void handleUpdateText() {
-        print("Question ID:");
+    private void searchByTag(){
+        print("Tag ID:");
         int id = scanner.nextInt();
+        for (Question q : stackoverflowService.searchByTag(id)) { print(q.toString()); }
+    }
+
+    private void searchByText(){
         print("Text:");
-        String text = scanner.next().trim();
-        questionManagementService.updateTitle(id, text);
-    }
-
-    private void handleRemove() {
-        print("Question ID:");
-        int id = scanner.nextInt();
-        questionManagementService.removeQuestion(id);
-    }
-
-    private void print(String value) {
-        System.out.println(value);
+        String s = scanner.next().trim();
+        if (!s.isEmpty()) {
+            for (Question q : stackoverflowService.searchInTitle(s)) { print(q.toString()); }
+        }
     }
 }

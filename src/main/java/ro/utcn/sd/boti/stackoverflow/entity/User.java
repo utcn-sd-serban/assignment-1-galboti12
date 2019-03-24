@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,8 +16,17 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     private String username;
     private String password;
-    private int is_admin;
+    private Integer is_admin;
+
+    @OneToMany(mappedBy = "author")
+    private List<Question> questions = new ArrayList<>();
+
+    public User(String username, String password, Integer is_admin){
+        this.username = username;
+        this.password = password;
+        this.is_admin = is_admin;
+    }
 }
