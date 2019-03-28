@@ -8,4 +8,5 @@ public interface RepositoryFactory {
 
     UserRepository getUserRepository();
 
+    AnswerRepository getAnswerRepository();
 }

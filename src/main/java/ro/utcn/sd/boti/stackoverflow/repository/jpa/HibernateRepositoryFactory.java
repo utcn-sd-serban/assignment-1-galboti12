@@ -3,10 +3,7 @@ package ro.utcn.sd.boti.stackoverflow.repository.jpa;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
-import ro.utcn.sd.boti.stackoverflow.repository.QuestionRepository;
-import ro.utcn.sd.boti.stackoverflow.repository.RepositoryFactory;
-import ro.utcn.sd.boti.stackoverflow.repository.TagRepository;
-import ro.utcn.sd.boti.stackoverflow.repository.UserRepository;
+import ro.utcn.sd.boti.stackoverflow.repository.*;
 
 import javax.persistence.EntityManager;
 
@@ -27,4 +24,7 @@ public class HibernateRepositoryFactory implements RepositoryFactory {
     @Override
     public UserRepository getUserRepository() { return new HibernateUserRepository(entityManager);
     }
+
+    @Override
+    public AnswerRepository getAnswerRepository() { return new HibernateAnswerRepository(entityManager); }
 }

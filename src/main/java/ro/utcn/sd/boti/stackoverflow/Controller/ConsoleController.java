@@ -3,6 +3,7 @@ package ro.utcn.sd.boti.stackoverflow.Controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import ro.utcn.sd.boti.stackoverflow.entity.Answer;
 import ro.utcn.sd.boti.stackoverflow.entity.Question;
 import ro.utcn.sd.boti.stackoverflow.entity.Tag;
 import ro.utcn.sd.boti.stackoverflow.entity.User;
@@ -71,8 +72,20 @@ public class ConsoleController implements CommandLineRunner {
             case "addquestion":
                 addQuestion();
                 return false;
+            case "addanswer":
+                addAnswer();
+                return false;
+            case "showquestion":
+                showQuestion();
+                return false;
+            case "editanswer":
+                editAnswer();
+                return false;
             case "removequestion":
                 removeQuestion();
+                return false;
+            case "deleteanswer":
+                deleteAnswer();
                 return false;
             case "searchbytag":
                 searchByTag();
@@ -93,6 +106,50 @@ public class ConsoleController implements CommandLineRunner {
     }
     private void listTags() {for (Tag t : stackoverflowService.listTags()) { print(t.toString()); } }
 
+    private Question getQuestion(){
+        print("Question ID:");
+        int id = scanner.nextInt();
+        Question question = stackoverflowService.findQuestionById(id).orElse(null);
+        if (question == null) {
+            print("Question not found!");
+            return null;
+        }
+        print(question.toString());
+        return question;
+    }
+
+    private Question getQuestionWithPermission(){
+        print("Question ID:");
+        int id = scanner.nextInt();
+        Question question = stackoverflowService.findQuestionById(id).orElse(null);
+        if (question == null) {
+            print("Question not found!");
+            return null;
+        }
+        print(question.toString());
+        if (question.getAuthor().getId() != user.getId()){
+            print("No permission");
+            return null;
+        }
+        return question;
+    }
+
+    private Answer getAnswer(){
+        print("Answer ID:");
+        int id = scanner.nextInt();
+        Answer answer = stackoverflowService.findAnswerById(id).orElse(null);
+        if (answer == null) {
+            print("Answer not found!");
+            return null;
+        }
+        print(answer.toString());
+        if (answer.getAuthor().getId() != user.getId()){
+            print("No permission");
+            return null;
+        }
+        return answer;
+    }
+
     private void addQuestion() {
         print("Question title:");
         String title = scanner.next().trim();
@@ -106,9 +163,9 @@ public class ConsoleController implements CommandLineRunner {
     }
 
     private void removeQuestion() {
-        print("Question ID:");
-        int id = scanner.nextInt();
-        stackoverflowService.removeQuestion(id);
+        Question question = getQuestionWithPermission();
+        if (question == null) return;
+        stackoverflowService.removeQuestion(question.getId());
     }
 
     private void searchByTag(){
@@ -123,5 +180,38 @@ public class ConsoleController implements CommandLineRunner {
         if (!s.isEmpty()) {
             for (Question q : stackoverflowService.searchInTitle(s)) { print(q.toString()); }
         }
+    }
+
+    private void addAnswer(){
+        Question question = getQuestion();
+        if (question == null) return;
+        print("Answer:");
+        String text = scanner.next().trim();
+        Answer answer = stackoverflowService.addAnswer(user, question, text);
+        print("Created answer: " + answer + ".");
+    }
+
+    private void showQuestion() {
+        Question question = getQuestion();
+        if (question == null) return;
+        print("A N S W E R S");
+        for (Answer answer : question.getAnswers()) { print(answer.toString()); }
+    }
+
+    private void editAnswer(){
+        Answer answer = getAnswer();
+        if (answer == null) return;
+        print("New answer");
+        String text = scanner.next().trim();
+        Answer updatedAnswer = stackoverflowService.updateAnswer(answer, text);
+        print("Updated answer: " + updatedAnswer);
+    }
+
+    private void deleteAnswer(){
+        Answer answer = getAnswer();
+        if (answer == null) return;
+        String text = scanner.next().trim();
+        stackoverflowService.deleteAnswer(answer);
+        print("Deleted answer: " + answer);
     }
 }

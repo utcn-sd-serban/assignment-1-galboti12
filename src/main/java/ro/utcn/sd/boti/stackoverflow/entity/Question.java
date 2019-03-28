@@ -13,7 +13,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(of = {"id", "title", "text", "time", "vote"})
+//@ToString(of = {"id", "title", "text", "time", "vote"})
 public class Question {
 
     @Id
@@ -35,11 +35,18 @@ public class Question {
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> tags = new ArrayList<>();
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "question")
+    private List<Answer> answers = new ArrayList<>();
+
     public Question(User author, String title, String text, String time){
         this.author = author;
         this.title = title;
         this.text = text;
         this.time = time;
         this.vote = 0;
+    }
+
+    public String toString(){
+        return new String("id = " + id + ", autor = " + (author == null ? "null" : author.getUsername()) + ", title = " + title);
     }
 }
